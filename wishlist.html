@@ -1,1 +1,1089 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyWish - Создай свой вишлист</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        :root {
+            --primary: #7c3aed;
+            --primary-dark: #6d28d9;
+            --secondary: #f59e0b;
+            --text: #1f2937;
+            --text-light: #6b7280;
+            --bg: #f8fafc;
+            --white: #ffffff;
+            --border: #e5e7eb;
+            --success: #10b981;
+            --error: #ef4444;
+            --danger: #dc2626;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            background: var(--white);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: var(--white);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: var(--white);
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+
+        .btn-sm {
+            padding: 0.4rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        /* Hero */
+        .hero {
+            text-align: center;
+            padding: 4rem 0;
+            background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+            color: var(--white);
+            border-radius: 0 0 20px 20px;
+            margin-bottom: 3rem;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        /* Main Content */
+        .main-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .active {
+            display: block;
+        }
+
+        /* Wishlist Grid */
+        .wishlist-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .wish-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid var(--border);
+            position: relative;
+        }
+
+        .wish-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        }
+
+        .wish-card.reserved {
+            border-left: 4px solid var(--success);
+        }
+
+        .wish-image {
+            width: 100%;
+            height: 200px;
+            background: var(--bg);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-light);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .wish-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-placeholder {
+            text-align: center;
+            color: var(--text-light);
+        }
+
+        .image-placeholder i {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .wish-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        .wish-price {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .wish-description {
+            color: var(--text-light);
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .wish-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .wish-link {
+            flex: 1;
+            background: var(--bg);
+            color: var(--text);
+            text-align: center;
+            padding: 0.5rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .wish-link:hover {
+            background: var(--border);
+        }
+
+        .reserved-badge {
+            background: var(--success);
+            color: var(--white);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* Delete buttons */
+        .delete-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(220, 38, 38, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.3s ease;
+            font-size: 0.8rem;
+        }
+
+        .wish-card:hover .delete-btn {
+            opacity: 1;
+        }
+
+        .delete-btn:hover {
+            background: var(--danger);
+            transform: scale(1.1);
+        }
+
+        /* Forms */
+        .form-container {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin: 2rem 0;
+            max-width: 500px;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+        }
+
+        /* Image Upload */
+        .image-upload {
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .image-upload:hover {
+            border-color: var(--primary);
+        }
+
+        .image-upload i {
+            font-size: 2rem;
+            color: var(--text-light);
+            margin-bottom: 1rem;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 2rem;
+        }
+
+        .tab {
+            padding: 1rem 2rem;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            font-weight: 600;
+            color: var(--text-light);
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        /* Share Section */
+        .share-section {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .share-link {
+            display: flex;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .share-link input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg);
+        }
+
+        /* Guest View */
+        .guest-header {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: var(--white);
+            padding: 2rem 0;
+            text-align: center;
+            border-radius: 0 0 20px 20px;
+            margin-bottom: 2rem;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-light);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            color: var(--white);
+            font-weight: 600;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: var(--success);
+        }
+
+        .notification.error {
+            background: var(--error);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .wishlist-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-actions {
+                display: none;
+            }
+
+            .delete-btn {
+                opacity: 1;
+                background: rgba(220, 38, 38, 0.8);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="#" class="logo">
+                    <i class="fas fa-gift"></i>
+                    MyWish
+                </a>
+                <div class="nav-actions">
+                    <button class="btn btn-outline" onclick="showSection('wishlists')">
+                        <i class="fas fa-home"></i> Мои вишлисты
+                    </button>
+                    <button class="btn btn-primary" onclick="showSection('create')">
+                        <i class="fas fa-plus"></i> Создать вишлист
+                    </button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Guest Header (hidden by default) -->
+    <div id="guestHeader" class="guest-header" style="display: none;">
+        <div class="container">
+            <h1>🎁 Вишлист друга</h1>
+            <p>Выбери подарок, который хочешь подарить!</p>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero" id="mainHero">
+        <div class="container">
+            <h1>Создай свой вишлист</h1>
+            <p>Добавляй желаемые подарки и делись списком с друзьями</p>
+            <button class="btn btn-primary" onclick="showSection('create')">
+                <i class="fas fa-plus"></i> Создать первый вишлист
+            </button>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Tabs (hidden in guest mode) -->
+        <div class="tabs" id="mainTabs">
+            <div class="tab active" onclick="showSection('wishlists')">Мои вишлисты</div>
+            <div class="tab" onclick="showSection('create')">Создать новый</div>
+            <div class="tab" onclick="showSection('shared')">Поделиться</div>
+        </div>
+
+        <!-- My Wishlists Section -->
+        <section id="wishlists" class="main-content active">
+            <h2>Мои вишлисты</h2>
+            <div class="wishlist-grid" id="wishlistsContainer">
+                <!-- Wishlists will appear here -->
+            </div>
+        </section>
+
+        <!-- Create Wishlist Section -->
+        <section id="create" class="main-content">
+            <h2>Создать новый вишлист</h2>
+            <div class="form-container">
+                <div class="form-group">
+                    <label for="wishlistName">Название вишлиста</label>
+                    <input type="text" id="wishlistName" class="form-control" placeholder="Например: Подарки на день рождения">
+                </div>
+                <div class="form-group">
+                    <label for="wishlistDescription">Описание</label>
+                    <textarea id="wishlistDescription" class="form-control" rows="3" placeholder="Расскажите немного о вашем вишлисте"></textarea>
+                </div>
+                <button class="btn btn-primary" onclick="createWishlist()">
+                    <i class="fas fa-save"></i> Создать вишлист
+                </button>
+            </div>
+
+            <!-- Add Item Form -->
+            <div id="addItemForm" style="display: none;">
+                <h3>Добавить подарок</h3>
+                <div class="form-container">
+                    <div class="form-group">
+                        <label for="itemName">Название подарка</label>
+                        <input type="text" id="itemName" class="form-control" placeholder="Например: Книга, Наушники">
+                    </div>
+                    <div class="form-group">
+                        <label for="itemPrice">Цена</label>
+                        <input type="text" id="itemPrice" class="form-control" placeholder="Например: 1500 руб">
+                    </div>
+                    <div class="form-group">
+                        <label for="itemLink">Ссылка на магазин</label>
+                        <input type="url" id="itemLink" class="form-control" placeholder="https://...">
+                    </div>
+                    <div class="form-group">
+                        <label for="itemDescription">Описание</label>
+                        <textarea id="itemDescription" class="form-control" rows="3" placeholder="Описание подарка"></textarea>
+                    </div>
+                    
+                    <!-- Image Upload -->
+                    <div class="form-group">
+                        <label>Изображение подарка</label>
+                        <div class="image-upload" onclick="document.getElementById('imageInput').click()">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Нажмите чтобы загрузить изображение</p>
+                            <p style="font-size: 0.8rem; color: var(--text-light);">Или перетащите файл сюда</p>
+                            <img id="imagePreview" class="image-preview" alt="Preview">
+                        </div>
+                        <input type="file" id="imageInput" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="addItem()">
+                        <i class="fas fa-plus"></i> Добавить подарок
+                    </button>
+                </div>
+            </div>
+
+            <!-- Current Wishlist Items -->
+            <div id="currentWishlist" style="display: none;">
+                <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 1rem;">
+                    <h3 style="margin: 0;">Подарки в вишлисте "<span id="currentWishlistTitle"></span>"</h3>
+                    <button class="btn btn-danger btn-sm" onclick="deleteCurrentWishlist()">
+                        <i class="fas fa-trash"></i> Удалить вишлист
+                    </button>
+                </div>
+                <div class="wishlist-grid" id="currentWishlistItems">
+                    <!-- Items will appear here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Share Section -->
+        <section id="shared" class="main-content">
+            <h2>Поделиться вишлистом</h2>
+            <div class="share-section">
+                <i class="fas fa-share-alt" style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;"></i>
+                <h3>Поделитесь ссылкой с друзьями</h3>
+                <p>Ваши друзья смогут просмотреть ваш вишлист и забронировать подарки</p>
+                
+                <div class="share-link">
+                    <input type="text" id="shareUrl" readonly>
+                    <button class="btn btn-primary" onclick="copyShareLink()">
+                        <i class="fas fa-copy"></i> Копировать
+                    </button>
+                </div>
+                
+                <div style="margin-top: 2rem;">
+                    <h4>Предпросмотр для друзей:</h4>
+                    <button class="btn btn-outline" onclick="previewGuestView()">
+                        <i class="fas fa-eye"></i> Посмотреть как друг
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Guest View Section -->
+        <section id="guestView" class="main-content">
+            <h2>Вишлист: <span id="guestWishlistTitle"></span></h2>
+            <p id="guestWishlistDescription" style="color: var(--text-light); margin-bottom: 2rem;"></p>
+            
+            <div class="wishlist-grid" id="guestWishlistItems">
+                <!-- Guest items will appear here -->
+            </div>
+        </section>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification"></div>
+
+    <script>
+        // Data storage
+        let wishlists = JSON.parse(localStorage.getItem('wishlists')) || [];
+        let currentWishlist = null;
+        let currentImageData = null;
+
+        // Check if we're in guest mode from URL
+        function checkGuestMode() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const wishlistId = urlParams.get('wishlist');
+            
+            if (wishlistId) {
+                enableGuestMode(parseInt(wishlistId));
+            } else {
+                enableCreatorMode();
+            }
+        }
+
+        // Enable guest mode
+        function enableGuestMode(wishlistId) {
+            document.getElementById('mainHero').style.display = 'none';
+            document.getElementById('mainTabs').style.display = 'none';
+            document.getElementById('guestHeader').style.display = 'block';
+            document.querySelector('.header').style.display = 'none';
+            
+            const wishlist = wishlists.find(w => w.id === wishlistId);
+            if (wishlist) {
+                document.getElementById('guestWishlistTitle').textContent = wishlist.name;
+                document.getElementById('guestWishlistDescription').textContent = wishlist.description || 'Описание отсутствует';
+                renderGuestWishlist(wishlist);
+                showSection('guestView');
+            } else {
+                document.getElementById('guestWishlistTitle').textContent = 'Вишлист не найден';
+                showNotification('Вишлист не найден!', 'error');
+            }
+        }
+
+        // Enable creator mode
+        function enableCreatorMode() {
+            document.getElementById('mainHero').style.display = 'block';
+            document.getElementById('mainTabs').style.display = 'flex';
+            document.getElementById('guestHeader').style.display = 'none';
+            document.querySelector('.header').style.display = 'block';
+            showSection('wishlists');
+            renderWishlists();
+        }
+
+        // Show/hide sections
+        function showSection(sectionId) {
+            document.querySelectorAll('.main-content').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.getElementById(sectionId).classList.add('active');
+            
+            document.querySelectorAll('.tab').forEach(tab => {
+                if (tab.textContent.includes(
+                    sectionId === 'wishlists' ? 'Мои вишлисты' :
+                    sectionId === 'create' ? 'Создать новый' :
+                    'Поделиться'
+                )) {
+                    tab.classList.add('active');
+                }
+            });
+
+            if (sectionId === 'wishlists') {
+                renderWishlists();
+            } else if (sectionId === 'shared') {
+                updateShareLink();
+            }
+        }
+
+        // Handle image upload
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentImageData = e.target.result;
+                    const preview = document.getElementById('imagePreview');
+                    preview.src = currentImageData;
+                    preview.style.display = 'block';
+                    document.querySelector('.image-upload i').style.display = 'none';
+                    document.querySelector('.image-upload p').style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Create new wishlist
+        function createWishlist() {
+            const name = document.getElementById('wishlistName').value.trim();
+            const description = document.getElementById('wishlistDescription').value.trim();
+            
+            if (!name) {
+                showNotification('Введите название вишлиста', 'error');
+                return;
+            }
+            
+            const newWishlist = {
+                id: Date.now(),
+                name: name,
+                description: description,
+                items: [],
+                createdAt: new Date().toISOString()
+            };
+            
+            wishlists.push(newWishlist);
+            saveWishlists();
+            
+            document.getElementById('wishlistName').value = '';
+            document.getElementById('wishlistDescription').value = '';
+            
+            currentWishlist = newWishlist;
+            document.getElementById('addItemForm').style.display = 'block';
+            document.getElementById('currentWishlist').style.display = 'block';
+            document.getElementById('currentWishlistTitle').textContent = name;
+            
+            showNotification('Вишлист создан! Теперь добавьте подарки 🎁', 'success');
+        }
+
+        // Add item to current wishlist
+        function addItem() {
+            if (!currentWishlist) {
+                showNotification('Сначала создайте вишлист', 'error');
+                return;
+            }
+            
+            const name = document.getElementById('itemName').value.trim();
+            const price = document.getElementById('itemPrice').value.trim();
+            const link = document.getElementById('itemLink').value.trim();
+            const description = document.getElementById('itemDescription').value.trim();
+            
+            if (!name) {
+                showNotification('Введите название подарка', 'error');
+                return;
+            }
+            
+            const newItem = {
+                id: Date.now(),
+                name: name,
+                price: price || 'Цена не указана',
+                link: link || '#',
+                description: description || 'Описание отсутствует',
+                reserved: false,
+                image: currentImageData || 'https://via.placeholder.com/300x200?text=Подарок'
+            };
+            
+            currentWishlist.items.push(newItem);
+            saveWishlists();
+            
+            // Clear form
+            document.getElementById('itemName').value = '';
+            document.getElementById('itemPrice').value = '';
+            document.getElementById('itemLink').value = '';
+            document.getElementById('itemDescription').value = '';
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('imagePreview').src = '';
+            document.querySelector('.image-upload i').style.display = 'block';
+            document.querySelector('.image-upload p').style.display = 'block';
+            currentImageData = null;
+            document.getElementById('imageInput').value = '';
+            
+            renderCurrentWishlistItems();
+            showNotification('Подарок добавлен! 🎉', 'success');
+        }
+
+        // Delete current wishlist
+        function deleteCurrentWishlist() {
+            if (!currentWishlist) return;
+            
+            if (confirm(`Удалить вишлист "${currentWishlist.name}" и все подарки в нем?`)) {
+                wishlists = wishlists.filter(w => w.id !== currentWishlist.id);
+                saveWishlists();
+                
+                document.getElementById('addItemForm').style.display = 'none';
+                document.getElementById('currentWishlist').style.display = 'none';
+                currentWishlist = null;
+                
+                showSection('wishlists');
+                showNotification('Вишлист удален', 'success');
+            }
+        }
+
+        // Delete wishlist from main view
+        function deleteWishlist(wishlistId) {
+            const wishlist = wishlists.find(w => w.id === wishlistId);
+            if (!wishlist) return;
+            
+            if (confirm(`Удалить вишлист "${wishlist.name}" и все подарки в нем?`)) {
+                wishlists = wishlists.filter(w => w.id !== wishlistId);
+                saveWishlists();
+                
+                if (currentWishlist && currentWishlist.id === wishlistId) {
+                    document.getElementById('addItemForm').style.display = 'none';
+                    document.getElementById('currentWishlist').style.display = 'none';
+                    currentWishlist = null;
+                }
+                
+                renderWishlists();
+                showNotification('Вишлист удален', 'success');
+            }
+        }
+
+        // Delete item from wishlist
+        function deleteItem(itemId) {
+            if (!currentWishlist) return;
+            
+            const item = currentWishlist.items.find(i => i.id === itemId);
+            if (!item) return;
+            
+            if (confirm(`Удалить подарок "${item.name}"?`)) {
+                currentWishlist.items = currentWishlist.items.filter(i => i.id !== itemId);
+                saveWishlists();
+                renderCurrentWishlistItems();
+                showNotification('Подарок удален', 'success');
+            }
+        }
+
+        // Reserve item (guest function)
+        function reserveItem(itemId) {
+            if (!currentWishlist) return;
+            
+            const item = currentWishlist.items.find(i => i.id === itemId);
+            if (item && !item.reserved) {
+                if (confirm(`Забронировать "${item.name}"? Другие увидят, что подарок уже занят!`)) {
+                    item.reserved = true;
+                    saveWishlists();
+                    renderGuestWishlist(currentWishlist);
+                    showNotification(`Вы забронировали: ${item.name} 🎁`, 'success');
+                }
+            }
+        }
+
+        // Unreserve item
+        function unreserveItem(itemId) {
+            if (!currentWishlist) return;
+            
+            const item = currentWishlist.items.find(i => i.id === itemId);
+            if (item) {
+                item.reserved = false;
+                saveWishlists();
+                renderCurrentWishlistItems();
+                showNotification('Бронь отменена', 'success');
+            }
+        }
+
+        // Render wishlists
+        function renderWishlists() {
+            const container = document.getElementById('wishlistsContainer');
+            
+            if (wishlists.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-gift"></i>
+                        <h3>У вас пока нет вишлистов</h3>
+                        <p>Создайте первый вишлист и добавьте желаемые подарки</p>
+                        <button class="btn btn-primary" onclick="showSection('create')">
+                            Создать вишлист
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = wishlists.map(wishlist => `
+                <div class="wish-card" onclick="openWishlist(${wishlist.id})">
+                    <button class="delete-btn" onclick="event.stopPropagation(); deleteWishlist(${wishlist.id})" title="Удалить вишлист">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <div class="wish-image">
+                        ${wishlist.items.length > 0 && wishlist.items[0].image ? 
+                            `<img src="${wishlist.items[0].image}" alt="${wishlist.name}">` :
+                            `<div class="image-placeholder">
+                                <i class="fas fa-gift"></i>
+                                <p>Нет изображений</p>
+                            </div>`
+                        }
+                    </div>
+                    <div class="wish-title">${wishlist.name}</div>
+                    <div class="wish-description">${wishlist.description || 'Описание отсутствует'}</div>
+                    <div style="color: var(--text-light); font-size: 0.9rem;">
+                        ${wishlist.items.length} подарков • 
+                        ${wishlist.items.filter(item => item.reserved).length} забронировано
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Render current wishlist items
+        function renderCurrentWishlistItems() {
+            if (!currentWishlist) return;
+            
+            const container = document.getElementById('currentWishlistItems');
+            container.innerHTML = currentWishlist.items.map(item => `
+                <div class="wish-card ${item.reserved ? 'reserved' : ''}">
+                    <button class="delete-btn" onclick="deleteItem(${item.id})" title="Удалить подарок">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <div class="wish-image">
+                        <img src="${item.image}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/300x200?text=Ошибка+загрузки'">
+                    </div>
+                    <div class="wish-title">${item.name}</div>
+                    <div class="wish-price">${item.price}</div>
+                    <div class="wish-description">${item.description}</div>
+                    ${item.reserved ? '<div class="reserved-badge">✅ Забронировано</div>' : ''}
+                    <div class="wish-actions">
+                        ${item.link !== '#' ? `<a href="${item.link}" target="_blank" class="wish-link">🛒 Купить</a>` : ''}
+                        ${item.reserved ? 
+                            `<button class="btn btn-outline" onclick="unreserveItem(${item.id})" style="flex: 1;">❌ Отменить бронь</button>` :
+                            `<button class="btn" disabled style="flex: 1; background: var(--bg);">🆓 Свободно</button>`
+                        }
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Render guest wishlist
+        function renderGuestWishlist(wishlist) {
+            const container = document.getElementById('guestWishlistItems');
+            currentWishlist = wishlist;
+            
+            if (!wishlist.items || wishlist.items.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-gift"></i>
+                        <h3>В этом вишлисте пока нет подарков</h3>
+                        <p>Попросите друга добавить подарки в список</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = wishlist.items.map(item => `
+                <div class="wish-card ${item.reserved ? 'reserved' : ''}">
+                    <div class="wish-image">
+                        <img src="${item.image}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/300x200?text=Ошибка+загрузки'">
+                    </div>
+                    <div class="wish-title">${item.name}</div>
+                    <div class="wish-price">${item.price}</div>
+                    <div class="wish-description">${item.description}</div>
+                    ${item.reserved ? 
+                        '<div class="reserved-badge">🎁 Уже забронирован</div>' :
+                        `<button class="btn btn-success" onclick="reserveItem(${item.id})" style="width: 100%;">
+                            <i class="fas fa-gift"></i> Забронировать этот подарок
+                        </button>`
+                    }
+                    ${item.link !== '#' ? `<a href="${item.link}" target="_blank" class="wish-link" style="width: 100%; text-align: center; margin-top: 0.5rem;">🛒 Ссылка на магазин</a>` : ''}
+                </div>
+            `).join('');
+        }
+
+        // Open wishlist
+        function openWishlist(id) {
+            currentWishlist = wishlists.find(w => w.id === id);
+            document.getElementById('addItemForm').style.display = 'block';
+            document.getElementById('currentWishlist').style.display = 'block';
+            document.getElementById('currentWishlistTitle').textContent = currentWishlist.name;
+            renderCurrentWishlistItems();
+            showSection('create');
+        }
+
+        // Update share link
+        function updateShareLink() {
+            if (currentWishlist) {
+                const shareUrl = `${window.location.origin}${window.location.pathname}?wishlist=${currentWishlist.id}`;
+                document.getElementById('shareUrl').value = shareUrl;
+            } else if (wishlists.length > 0) {
+                const shareUrl = `${window.location.origin}${window.location.pathname}?wishlist=${wishlists[0].id}`;
+                document.getElementById('shareUrl').value = shareUrl;
+            } else {
+                document.getElementById('shareUrl').value = 'Сначала создайте вишлист';
+            }
+        }
+
+        // Copy share link
+        function copyShareLink() {
+            const shareInput = document.getElementById('shareUrl');
+            if (shareInput.value !== 'Сначала создайте вишлист') {
+                shareInput.select();
+                document.execCommand('copy');
+                showNotification('Ссылка скопирована! Отправьте её друзьям 📧', 'success');
+            }
+        }
+
+        // Preview guest view
+        function previewGuestView() {
+            if (currentWishlist) {
+                const shareUrl = `${window.location.origin}${window.location.pathname}?wishlist=${currentWishlist.id}`;
+                window.open(shareUrl, '_blank');
+            } else {
+                showNotification('Сначала создайте вишлист', 'error');
+            }
+        }
+
+        // Show notification
+        function showNotification(message, type) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type} show`;
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Save to localStorage
+        function saveWishlists() {
+            localStorage.setItem('wishlists', JSON.stringify(wishlists));
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Enable drag and drop for image upload
+            const imageUpload = document.querySelector('.image-upload');
+            imageUpload.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.style.borderColor = 'var(--primary)';
+                this.style.background = 'var(--bg)';
+            });
+            
+            imageUpload.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                this.style.borderColor = 'var(--border)';
+                this.style.background = 'transparent';
+            });
+            
+            imageUpload.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.style.borderColor = 'var(--border)';
+                this.style.background = 'transparent';
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    document.getElementById('imageInput').files = files;
+                    handleImageUpload({ target: { files: files } });
+                }
+            });
+            
+            checkGuestMode();
+        });
+    </script>
+</body>
+</html>
