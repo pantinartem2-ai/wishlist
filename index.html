@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyWish - Создай свой вишлист</title>
+    <title>MyWish - Вишлисты</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -589,7 +589,7 @@
 
             <!-- Current Wishlist Items -->
             <div id="currentWishlist" style="display: none;">
-                <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                     <h3 style="margin: 0;">Подарки в вишлисте "<span id="currentWishlistTitle"></span>"</h3>
                     <button class="btn btn-danger btn-sm" onclick="deleteCurrentWishlist()">
                         <i class="fas fa-trash"></i> Удалить вишлист
@@ -613,6 +613,16 @@
                     <input type="text" id="shareUrl" readonly>
                     <button class="btn btn-primary" onclick="copyShareLink()">
                         <i class="fas fa-copy"></i> Копировать
+                    </button>
+                </div>
+
+                <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border);">
+                    <h4>Сохранить вишлист</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-light); margin-bottom: 1rem;">
+                        Сохраните эту ссылку чтобы открыть вишлист на другом устройстве
+                    </p>
+                    <button class="btn btn-outline" onclick="saveWishlistToFile()">
+                        <i class="fas fa-download"></i> Сохранить в файл
                     </button>
                 </div>
                 
@@ -671,8 +681,31 @@
                 renderGuestWishlist(wishlist);
                 showSection('guestView');
             } else {
+                // Попробуем загрузить из URL данных
+                loadWishlistFromUrl();
+            }
+        }
+
+        // Загрузка вишлиста из данных в URL
+        function loadWishlistFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const data = urlParams.get('data');
+            
+            if (data) {
+                try {
+                    const decodedData = decodeURIComponent(escape(atob(data)));
+                    const wishlistData = JSON.parse(decodedData);
+                    
+                    document.getElementById('guestWishlistTitle').textContent = wishlistData.name;
+                    document.getElementById('guestWishlistDescription').textContent = wishlistData.description || 'Описание отсутствует';
+                    renderGuestWishlist(wishlistData);
+                    showSection('guestView');
+                } catch (error) {
+                    document.getElementById('guestWishlistTitle').textContent = 'Ошибка загрузки вишлиста';
+                    showNotification('Не удалось загрузить вишлист', 'error');
+                }
+            } else {
                 document.getElementById('guestWishlistTitle').textContent = 'Вишлист не найден';
-                showNotification('Вишлист не найден!', 'error');
             }
         }
 
@@ -1005,17 +1038,42 @@
             showSection('create');
         }
 
-        // Update share link
+        // Update share link - теперь с данными в URL
         function updateShareLink() {
             if (currentWishlist) {
-                const shareUrl = `${window.location.origin}${window.location.pathname}?wishlist=${currentWishlist.id}`;
+                // Кодируем весь вишлист в URL
+                const dataStr = JSON.stringify(currentWishlist);
+                const encodedData = btoa(unescape(encodeURIComponent(dataStr)));
+                const shareUrl = `${window.location.origin}${window.location.pathname}?data=${encodedData}`;
+                
                 document.getElementById('shareUrl').value = shareUrl;
             } else if (wishlists.length > 0) {
-                const shareUrl = `${window.location.origin}${window.location.pathname}?wishlist=${wishlists[0].id}`;
+                const dataStr = JSON.stringify(wishlists[0]);
+                const encodedData = btoa(unescape(encodeURIComponent(dataStr)));
+                const shareUrl = `${window.location.origin}${window.location.pathname}?data=${encodedData}`;
+                
                 document.getElementById('shareUrl').value = shareUrl;
             } else {
                 document.getElementById('shareUrl').value = 'Сначала создайте вишлист';
             }
+        }
+
+        // Сохранить вишлист в файл
+        function saveWishlistToFile() {
+            if (!currentWishlist) {
+                showNotification('Сначала откройте вишлист', 'error');
+                return;
+            }
+            
+            const dataStr = JSON.stringify(currentWishlist, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `wishlist-${currentWishlist.name}.json`;
+            link.click();
+            
+            showNotification('Вишлист сохранен в файл!', 'success');
         }
 
         // Copy share link
@@ -1031,7 +1089,9 @@
         // Preview guest view
         function previewGuestView() {
             if (currentWishlist) {
-                const shareUrl = `${window.location.origin}${window.location.pathname}?wishlist=${currentWishlist.id}`;
+                const dataStr = JSON.stringify(currentWishlist);
+                const encodedData = btoa(unescape(encodeURIComponent(dataStr)));
+                const shareUrl = `${window.location.origin}${window.location.pathname}?data=${encodedData}`;
                 window.open(shareUrl, '_blank');
             } else {
                 showNotification('Сначала создайте вишлист', 'error');
